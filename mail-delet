@@ -1,0 +1,49 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Net::POP3;
+use Date::Parse;
+
+my $host = "Put hostname";
+my $domain = "PUT domain name";
+my $user = "Put user name\@$domain";
+
+#my $user = "user@domain.com"; - not work problem @domain as string
+
+my $pass = "your mail pass";
+my $max_age = 7 * 24 * 3600; # max allowed age in seconds
+# set time in second 1hour - 3600 s * 24 hours = 1 day * 7 = 1 week
+
+my $pop = Net::POP3->new($host);
+if ($pop) {
+    print "Successfully connected to server $host\n";
+} else {
+    die "Unable to connect to server $host\n";
+}
+
+if ($pop->login($user, $pass)) {
+    print "User successfully logged $user\n";
+} else {
+    die "Login failed for user $user\n";
+}
+
+my $msgs = $pop->list or die "Cannot get message list: $!";
+my $now = time;
+
+foreach my $msg_num (keys %$msgs) {
+    my $header = $pop->top($msg_num, 0);
+    foreach my $line (@$header) {
+        if ($line =~ /^Date:\s+(.*)$/i) {
+            my $date = $1;
+            my $time = str2time($date);
+            if ($now - $time >= $max_age) {
+                $pop->delete($msg_num);
+                print "Deleted message $msg_num\n";
+            }
+            last;
+        }
+    }
+}
+
+$pop->quit;
+
