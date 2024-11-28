@@ -8,7 +8,7 @@ my $host = "Put hostname";
 my $domain = "PUT domain name";
 my $user = "Put user name\@$domain";
 
-#my $user = "user@domain.com"; - not work problem @domain as string
+#my $user = "user\@domain.com"; - or this without line 8 and 9
 
 my $pass = "your mail pass";
 my $max_age = 7 * 24 * 3600; # max allowed age in seconds
